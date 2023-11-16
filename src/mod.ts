@@ -131,8 +131,7 @@ class RemoveHigherCapacityMagazineLoadPenalties implements IPostDBLoadMod {
         logger.info(`${MODTITLE} applying changes`);
 
         if (config.debug) {
-            logger.info(`${MODTITLE} starting database scan for qualifying magazines. A magazine is qualified if its capacity is higher than 32`)
-            logger.info(`${MODTITLE} generally, magazines less than 32 do not need the debuff removed, and if done so will remove positive buffs`)
+            logger.info(`${MODTITLE} starting database scan for magazines`)
             logger.info(`${MODTITLE} UnloadModifier is set to ${loadUnloadTimeModifierValue}, Magazine check time modifier is set to ${checkTimeModifierValue}`)
         }
 
@@ -143,14 +142,15 @@ class RemoveHigherCapacityMagazineLoadPenalties implements IPostDBLoadMod {
 
             if (cartridgesRoot !== undefined && cartridgesRoot.length > 0) {
                 const currentItem = cartridgesRoot[0]
-                const magazineIsOfHigherCapacity = currentItem._max_count > 32
-                if (magazineIsOfHigherCapacity) {
-                    config.debug && logger.info(`${MODTITLE} item of id: ${item._id} is a higher capacity magazine as it has a capacity of ${currentItem._max_count}`)
+                const isMagazine = currentItem._max_count > 0
+                if (isMagazine) {
+                    config.debug && logger.info(`${MODTITLE} item of id: ${item._id} is a magazine as it has a capacity of ${currentItem._max_count}`)
                     magazines.push(item._id)
                 }
             }
         }
 
+        let numberOfMagazineEdited = 0
         // modify the items properties
         magazines.map(mag => {
             if (mag !== null && mag !== undefined) {
@@ -158,18 +158,36 @@ class RemoveHigherCapacityMagazineLoadPenalties implements IPostDBLoadMod {
                 let magazine = tables?.templates?.items[mag];
                 if (magazine !== undefined) {
                     config.debug && logger.info(`${MODTITLE} Item found in database, Removing Penalties of id:${mag}`)
+                    let shouldIncrementCount = false
 
-                    magazine._props.LoadUnloadModifier = loadUnloadTimeModifierValue;
-                    magazine._props.CheckTimeModifier = checkTimeModifierValue;
+                    if (magazine._props.LoadUnloadModifier > loadUnloadTimeModifierValue) {
+                        magazine._props.LoadUnloadModifier = loadUnloadTimeModifierValue;
+                        shouldIncrementCount = true
+                    }
+                    else {
+                        config.debug && logger.info(`${MODTITLE} Magazine of id:${mag} has better load/unload stats than the config value of ${loadUnloadTimeModifierValue}, ignoring`)
+                    }
+
+                    if (magazine._props.CheckTimeModifier > checkTimeModifierValue) {
+                        magazine._props.CheckTimeModifier = checkTimeModifierValue;
+                        shouldIncrementCount = true
+                    }
+                    else {
+                        config.debug && logger.info(`${MODTITLE} Magazine of id:${mag} has better checkTime stats than the config value of ${checkTimeModifierValue}, ignoring`)
+                    }
 
                     config.debug && logger.info(`${MODTITLE} Penalties removed of item id:${mag}`)
+
+                    if(shouldIncrementCount) {
+                        numberOfMagazineEdited += 1
+                    }
                     return
                 }
                 logger.error(`${MODTITLE}: failed to remove penalties of magazine with the id: ${mag}. If this is a modded item then it may not be compatible with this mod`)
             }
         })
 
-        logger.info(`${MODTITLE} ${magazines.length} Higher capacity Magazine Penalties removed`);
+        logger.info(`${MODTITLE} ${numberOfMagazineEdited} Magazine Penalties removed`);
         logger.info(`${MODTITLE} has finished`);
     }
 }
