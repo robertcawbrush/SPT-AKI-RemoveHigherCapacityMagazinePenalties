@@ -94,6 +94,15 @@ type ItemIds = string[]
 
 const MODTITLE = "[RemoveMagazineLoadPenalties]"
 
+const checkIfInBannedList = (id: string, magazineBanList: string[]): boolean => {
+    if(id === undefined) return true
+    if(magazineBanList === undefined) return false
+
+    const isInMagList = (magazineBanList.indexOf(id)) > -1
+
+    return isInMagList
+}
+
 class RemoveHigherCapacityMagazineLoadPenalties implements IPostDBLoadMod {
 
     public postDBLoad(container: DependencyContainer): void {
@@ -104,6 +113,8 @@ class RemoveHigherCapacityMagazineLoadPenalties implements IPostDBLoadMod {
         if (config.debug) {
             logger.info(`${MODTITLE} DEBUG VALUE SET TO TRUE, ENABLING ADDITIONAL LOGGING\nset the debug value to false to turn off verbose logging`)
         }
+
+        const magazinesToIgnore = config.magazinesToIgnore
 
         let loadUnloadTimeModifierValue = 0
         let checkTimeModifierValue = 10
@@ -144,8 +155,13 @@ class RemoveHigherCapacityMagazineLoadPenalties implements IPostDBLoadMod {
                 const currentItem = cartridgesRoot[0]
                 const isMagazine = currentItem._max_count > 0
                 if (isMagazine) {
+                    const itemId = item._id
+                    if(checkIfInBannedList(itemId, magazinesToIgnore)) {
+                        config.debug && logger.info(`${MODTITLE} item of id: ${item._id} is in ban list and its stats will not be changed`)
+                        continue;
+                    }
                     config.debug && logger.info(`${MODTITLE} item of id: ${item._id} is a magazine as it has a capacity of ${currentItem._max_count}`)
-                    magazines.push(item._id)
+                    magazines.push(itemId)
                 }
             }
         }
