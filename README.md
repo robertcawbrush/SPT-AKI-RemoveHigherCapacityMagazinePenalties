@@ -24,18 +24,18 @@ in the server log you will see lines starting with "[RemoveMagazineLoadPenalties
 
 
 
-{
-"debug": false,
-"debugMagazineScanLog": false,
-"loadUnloadModifier": 0,
-"checkTimeModifier": 10,
-"magazinesToIgnore": [
+    {
+    "debug": false,
+    "debugMagazineScanLog": false,
+    "loadUnloadModifier": 0,
+    "checkTimeModifier": 10,
+    "magazinesToIgnore": [
     "ItemIdHere",
     "IfYourMagazineIsAVanillaTarkovItemUseThisSite{https://db.sp-tarkov.com/}",
     "OtherwiseYouWillEitherNeedToBuyItFromTheStoreAndLookAtTheRunningServerLog",
     "OrReadTheCodeOfTheModYouAreUsing"
- ]
-}
+     ]
+    }
 
 
 # debug
@@ -70,11 +70,11 @@ added as of 1.1, this is a list of the magazines in which you intend for their d
 
 
 
-...
-"UMPCasketMagazine": {
-    "_id": "UMPCasketMagazine",
-    "_name": "UMPCasketMagazine",
-... }
+    ...
+    "UMPCasketMagazine": {
+        "_id": "UMPCasketMagazine",
+        "_name": "UMPCasketMagazine",
+    ... }
 
 
 ### Note to other Developers
