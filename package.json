@@ -4,5 +4,5 @@
     "license": "MIT",
     "version": "1.1.0",
     "main": "src/mod.js",
-    "akiVersion": ">=3.7.1"
+    "sptVersion": ">=3.7.1"
 }
